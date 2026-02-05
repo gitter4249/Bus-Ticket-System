@@ -39,7 +39,6 @@ $result = $stmt->get_result();
         .status-badge { color: #15803d; background: #dcfce7; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; }
         .seat-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #475569; }
         .passenger-info { font-size: 13px; color: #64748b; margin-top: 4px; display: block; }
-        /* 增加公司名的样式 */
         .company-name { color: #4f46e5; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; display: block; margin-bottom: 2px; }
     </style>
 </head>
@@ -103,4 +102,5 @@ $result = $stmt->get_result();
     <?php include "includes/footer.php"; ?>
 </body>
 </html>
+
 
