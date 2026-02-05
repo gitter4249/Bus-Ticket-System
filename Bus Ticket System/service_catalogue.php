@@ -43,81 +43,29 @@ if (!$result) {
     <title>Available Buses | BusEase</title>
     <?php include "includes/header.php"; ?>
     <style>
-        .content-layout {
-            display: flex;
-            gap: 30px;
-            margin-top: 30px;
-            min-height: 60vh;
+        .content-layout { display: flex; gap: 30px; margin-top: 30px; min-height: 60vh; }
+        .filter-panel { flex: 1; background: #fff; padding: 20px; border-radius: 12px; height: fit-content; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .main-content { flex: 3; }
+        
+        .bus-card { 
+            background: #fff; border-radius: 15px; padding: 25px; margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.3s;
         }
-
-        .filter-panel {
-            flex: 1;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            height: fit-content;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        .bus-card:hover { transform: translateY(-5px); }
+        .bus-info h3 { color: #4f46e5; margin: 0 0 10px 0; font-size: 1.4rem; }
+        .bus-info p { margin: 5px 0; color: #555; }
+        
+        .price-section { text-align: right; }
+        .price-section h2 { color: #ff4757; font-size: 1.8rem; margin: 5px 0 10px 0; }
+        .view-btn { 
+            background: #4f46e5; color: #fff; padding: 12px 25px; 
+            border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;
         }
-
-        .main-content {
-            flex: 3;
-        }
-
-        .bus-card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: 0.3s;
-        }
-
-        .bus-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .bus-info h3 {
-            color: #4f46e5;
-            margin: 0 0 10px 0;
-            font-size: 1.4rem;
-        }
-
-        .bus-info p {
-            margin: 5px 0;
-            color: #555;
-        }
-
-        .price-section {
-            text-align: right;
-        }
-
-        .price-section h2 {
-            color: #ff4757;
-            font-size: 1.8rem;
-            margin: 5px 0 10px 0;
-        }
-
-        .view-btn {
-            background: #4f46e5;
-            color: #fff;
-            padding: 12px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 50px;
-            background: #fff;
-            border-radius: 12px;
-        }
+        .no-results { text-align: center; padding: 50px; background: #fff; border-radius: 12px; }
     </style>
 </head>
+<body style="background: #f8fafc;">
 
 <?php include "includes/navbar.php"; ?>
 
