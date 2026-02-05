@@ -3,6 +3,7 @@ session_start();
 if (!isset($_SESSION['admin'])) { header("Location: admin_login.php"); exit; }
 include "includes/config.php"; 
 
+//Logic to add a new bus
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_bus'])) {
     $company = mysqli_real_escape_string($conn, $_POST['bus_company']);
     $dep = mysqli_real_escape_string($conn, $_POST['departure']);
@@ -22,6 +23,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_bus'])) {
     exit;
 }
 
+//Edit an existing bus
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['edit_bus'])) {
+    $id = $_POST['bus_id'];
+    $company = mysqli_real_escape_string($conn, $_POST['bus_company']);
+    $dep = mysqli_real_escape_string($conn, $_POST['departure']);
+    $dest = mysqli_real_escape_string($conn, $_POST['destination']);
+    $date = $_POST['travel_date'];
+    $time = $_POST['depart_time'];
+    $price = $_POST['price'];
+
+    $stmt = $conn->prepare("UPDATE buses SET bus_company=?, departure=?, destination=?, travel_date=?, depart_time=?, price=? WHERE id=?");
+    $stmt->bind_param("sssssdi", $company, $dep, $dest, $date, $time, $price, $id);
+    
+    if($stmt->execute()) {
+        echo "<script>alert('Bus updated successfully!'); window.location='admin_dashboard.php?view=buses';</script>";
+    } else {
+        echo "<script>alert('Error: " . $conn->error . "');</script>";
+    }
+    exit;
+}
+
+//Delete a bus
 if (isset($_GET['delete_bus'])) {
     $bus_id = $_GET['delete_bus'];
     $stmt = $conn->prepare("DELETE FROM buses WHERE id = ?");
@@ -31,6 +54,7 @@ if (isset($_GET['delete_bus'])) {
     exit;
 }
 
+//Active/Inactive
 if (isset($_GET['toggle_status']) && isset($_GET['current'])) {
     $bus_id = $_GET['toggle_status'];
     $new_status = ($_GET['current'] == 1) ? 0 : 1;
@@ -41,6 +65,7 @@ if (isset($_GET['toggle_status']) && isset($_GET['current'])) {
     exit;
 }
 
+//Determine view
 $view = $_GET['view'] ?? 'bookings'; 
 $sel_route = $_GET['route'] ?? null;
 $sel_date  = $_GET['date'] ?? null;
@@ -74,6 +99,7 @@ $sel_date  = $_GET['date'] ?? null;
     <div class="sidebar-logo">
         <img src="images/logo3.png" alt="BusEase Logo">
     </div>
+    <!-- Sidebar Button -->
     <div class="nav-menu">
         <a href="admin_dashboard.php?view=bookings" class="nav-link-custom <?= $view == 'bookings' ? 'active' : '' ?>">
             <i class="bi bi-speedometer2"></i> Booking Management
@@ -92,8 +118,7 @@ $sel_date  = $_GET['date'] ?? null;
 </div>
 
 <div class="main-content">
-    <div class="card-custom">
-        
+    <div class="card-custom">       
         <?php if($view == 'buses'): ?>
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold">Manage Bus Schedules</h4>
@@ -117,7 +142,9 @@ $sel_date  = $_GET['date'] ?? null;
                     </thead>
                     <tbody>
                         <?php 
+                        // Get all bus data from database, sorted by date and time
                         $res = $conn->query("SELECT * FROM buses ORDER BY travel_date DESC, depart_time ASC");
+                        // Loop through each bus record
                         while($b = $res->fetch_assoc()): ?>
                             <tr>
                                 <td class="fw-bold text-primary"><?= htmlspecialchars($b['bus_company'] ?? 'N/A') ?></td>
@@ -130,6 +157,17 @@ $sel_date  = $_GET['date'] ?? null;
                                     <a href="?view=buses&toggle_status=<?= $b['id'] ?>&current=<?= $b['status'] ?>" class="status-toggle <?= $b['status'] == 1 ? 'status-active' : 'status-inactive' ?> me-2">
                                         <?= $b['status'] == 1 ? 'Active' : 'Inactive' ?>
                                     </a>
+                                    <button class="btn btn-outline-warning btn-sm btn-edit me-1" 
+                                            data-bs-toggle="modal" data-bs-target="#editBusModal"
+                                            data-id="<?= $b['id'] ?>" 
+                                            data-company="<?= htmlspecialchars($b['bus_company']) ?>"
+                                            data-dep="<?= htmlspecialchars($b['departure']) ?>" 
+                                            data-dest="<?= htmlspecialchars($b['destination']) ?>"
+                                            data-date="<?= $b['travel_date'] ?>" 
+                                            data-time="<?= $b['depart_time'] ?>"
+                                            data-price="<?= $b['price'] ?>">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
                                     <a href="?view=buses&delete_bus=<?= $b['id'] ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this schedule?')">
                                         <i class="bi bi-trash"></i>
                                     </a>
@@ -259,6 +297,67 @@ $sel_date  = $_GET['date'] ?? null;
     </div>
 </div>
 
+<div class="modal fade" id="editBusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Edit Bus Schedule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="bus_id" id="edit_bus_id">
+                <div class="mb-3">
+                    <label class="form-label">Bus Company</label>
+                    <input type="text" name="bus_company" id="edit_bus_company" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Departure</label>
+                    <input type="text" name="departure" id="edit_departure" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Destination</label>
+                    <input type="text" name="destination" id="edit_destination" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Travel Date</label>
+                    <input type="date" name="travel_date" id="edit_travel_date" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Depart Time</label>
+                    <input type="time" name="depart_time" id="edit_depart_time" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Price (RM)</label>
+                    <input type="number" step="0.01" name="price" id="edit_price" class="form-control" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" name="edit_bus" class="btn btn-warning px-4">Update Bus</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- auto enter information bus in edit modal -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const editButtons = document.querySelectorAll('.btn-edit');
+    editButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.getElementById('edit_bus_id').value = this.dataset.id;
+            document.getElementById('edit_bus_company').value = this.dataset.company;
+            document.getElementById('edit_departure').value = this.dataset.dep;
+            document.getElementById('edit_destination').value = this.dataset.dest;
+            document.getElementById('edit_travel_date').value = this.dataset.date;
+            document.getElementById('edit_depart_time').value = this.dataset.time;
+            document.getElementById('edit_price').value = this.dataset.price;
+        });
+    });
+});
+</script>
+
 </body>
 </html>
