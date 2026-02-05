@@ -80,24 +80,24 @@ unset($_SESSION['login_success']);
             <form class="search-form" method="GET" action="service_catalogue.php">
                 <div class="form-group">
                     <label>From</label>
-                    <select name="from" >
-                        <option value="">All</option>
-                        <option>Kuala Lumpur</option>
-                        <option>Penang</option>
-                        <option>Johor Bahru</option>
-                        <option>Melaka</option>
+                    <select name="from_loc" >
+                        <option value="All">All</option>
+                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                        <option value="Penang">Penang</option>
+                        <option value="Johor Bahru">Johor Bahru</option>
+                        <option value="Melaka">Melaka</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label>To</label>
-                    <select name="to" >
-                        <option value="">All</option>
-                        <option>Penang</option>
-                        <option>Kuala Lumpur</option>
-                        <option>Ipoh</option>
-                        <option>Johor Bahru</option>
-                        <option>Melaka</option>
+                    <select name="to_loc" >
+                        <option value="All">All</option>
+                        <option value="Penang">Penang</option>
+                        <option value="Kuala Lumpur">Kuala Lumpur</option>
+                        <option value="Ipoh">Ipoh</option>
+                        <option value="Johor Bahru">Johor Bahru</option>
+                        <option value="Melaka">Melaka</option>
                     </select>
                 </div>
 
