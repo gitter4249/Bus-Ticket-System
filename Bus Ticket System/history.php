@@ -9,7 +9,6 @@ if (!isset($_SESSION['user'])) {
 
 $user_email = $_SESSION['user'];
 
-// 修改 SQL：增加了 bs.bus_company
 $sql = "SELECT b.id, b.seat_no, b.p_name, b.p_email, b.p_phone, b.total_price, 
                bs.bus_company, bs.departure, bs.destination, bs.depart_time, bs.price
         FROM bookings b
@@ -104,3 +103,4 @@ $result = $stmt->get_result();
     <?php include "includes/footer.php"; ?>
 </body>
 </html>
+
