@@ -9,8 +9,9 @@ if (!isset($_SESSION['user'])) {
 
 $user_email = $_SESSION['user'];
 
+// 修改 SQL：增加了 bs.bus_company
 $sql = "SELECT b.id, b.seat_no, b.p_name, b.p_email, b.p_phone, b.total_price, 
-               bs.departure, bs.destination, bs.depart_time, bs.price
+               bs.bus_company, bs.departure, bs.destination, bs.depart_time, bs.price
         FROM bookings b
         JOIN buses bs ON b.bus_id = bs.id
         WHERE b.user_email = ?
@@ -39,6 +40,8 @@ $result = $stmt->get_result();
         .status-badge { color: #15803d; background: #dcfce7; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; }
         .seat-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #475569; }
         .passenger-info { font-size: 13px; color: #64748b; margin-top: 4px; display: block; }
+        /* 增加公司名的样式 */
+        .company-name { color: #4f46e5; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; display: block; margin-bottom: 2px; }
     </style>
 </head>
 <body style="background: #f8fafc;">
@@ -52,7 +55,8 @@ $result = $stmt->get_result();
             <table>
                 <thead>
                     <tr>
-                        <th>Route & Passenger</th> <th>Time</th>
+                        <th>Route & Passenger</th> 
+                        <th>Time</th>
                         <th>Seats</th>
                         <th>Total Amount</th>
                         <th>Status</th>
@@ -70,11 +74,15 @@ $result = $stmt->get_result();
                         ?>
                         <tr>
                             <td>
+                                <span class="company-name"><?= htmlspecialchars($row['bus_company'] ?: 'Bus Express') ?></span>
+                                
                                 <strong><?= htmlspecialchars($row['departure']) ?> → <?= htmlspecialchars($row['destination']) ?></strong>
+                                
                                 <span class="passenger-info">
-                                    <?= htmlspecialchars($row['p_name'] ?: 'N/A') ?> 
+                                    Passenger: <?= htmlspecialchars($row['p_name'] ?: 'N/A') ?> 
                                 </span>
-                                <span class="passenger-info"><?= htmlspecialchars($row['p_phone'] ?: 'N/A') ?>
+                                <span class="passenger-info">
+                                    Phone: <?= htmlspecialchars($row['p_phone'] ?: 'N/A') ?>
                                 </span>
                             </td>
                             <td><?= htmlspecialchars($row['depart_time']) ?></td>
