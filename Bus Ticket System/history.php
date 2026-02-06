@@ -9,7 +9,7 @@ if (!isset($_SESSION['user'])) {
 
 $user_email = $_SESSION['user'];
 
-// is it bus status inactive, then show refunded
+// Generate booking history from database data 
 $sql = "SELECT b.id as booking_id, b.seat_no, b.p_name, b.p_email, b.p_phone, b.total_price, 
                bs.id as bus_id, bs.bus_company, bs.departure, bs.destination, bs.depart_time, bs.price, bs.status as bus_status
         FROM bookings b
@@ -45,9 +45,8 @@ $result = $stmt->get_result();
         .passenger-info { font-size: 13px; color: #64748b; margin-top: 4px; display: block; }
         .company-name { color: #4f46e5; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; display: block; margin-bottom: 2px; }
         
-        /*if cancel*/
-        .cancelled-row { background-color: #fafafa; }
-        .cancelled-row td { color: #94a3b8 !important; }
+        /* if cancel */
+        .cancelled-row { background-color: #fafafa; opacity: 0.8; }
         .cancelled-row .price-text { color: #94a3b8; text-decoration: line-through; }
     </style>
 </head>
@@ -72,10 +71,10 @@ $result = $stmt->get_result();
                 <tbody>
                     <?php if ($result->num_rows > 0): ?>
                         <?php while($row = $result->fetch_assoc()): 
-                            // if busstatus =0 then cancelled
-                            $is_cancelled = ($row['bus_status'] == 0);                           
+                            // if bus_status is 0, it means cancelled
+                            $is_cancelled = ($row['bus_status'] == 0);
+                            
                             $display_total = ($row['total_price'] > 0) ? $row['total_price'] : 0;
-                            // Recalculate total price if the original record is missing data
                             if($display_total == 0) {
                                 $seats_arr = explode(',', $row['seat_no']);
                                 $count = count(array_filter($seats_arr)); 
@@ -85,22 +84,15 @@ $result = $stmt->get_result();
                         <tr class="<?= $is_cancelled ? 'cancelled-row' : '' ?>">
                             <td>
                                 <span class="company-name"><?= htmlspecialchars($row['bus_company'] ?: 'Bus Express') ?></span>
-                                
                                 <strong><?= htmlspecialchars($row['departure']) ?> → <?= htmlspecialchars($row['destination']) ?></strong>
-                                
-                                <span class="passenger-info">
-                                    Passenger: <?= htmlspecialchars($row['p_name'] ?: 'N/A') ?> 
-                                </span>
-                                <?php if($is_cancelled): ?>
-                                    <small class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Bus Service Unavailable</small>
-                                <?php endif; ?>
+                                <span class="passenger-info">Passenger: <?= htmlspecialchars($row['p_name'] ?: 'N/A') ?> </span>
                             </td>
                             <td><?= htmlspecialchars($row['depart_time']) ?></td>
                             <td><span class="seat-badge"><?= htmlspecialchars($row['seat_no']) ?></span></td>
                             <td class="price-text">
                                 RM <?= number_format($display_total, 2) ?>
                                 <?php if($is_cancelled): ?>
-                                    <div style="font-size: 10px; text-decoration: none; color: #ef4444;">Refunded to Wallet</div>
+                                    <div style="font-size: 10px; color: #ef4444; font-weight: normal;">Refunded</div>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -120,12 +112,6 @@ $result = $stmt->get_result();
                 </tbody>
             </table>
         </div>
-        
-        <?php if ($result->num_rows > 0): ?>
-        <div style="margin-top: 20px; padding: 15px; background: #fffbeb; border-radius: 8px; border-left: 4px solid #f59e0b; font-size: 13px; color: #92400e;">
-            <strong>Note:</strong> If a bus service is deactivated by the operator (e.g., technical issues), your booking will be automatically cancelled and the amount will be refunded to your original payment method.
-        </div>
-        <?php endif; ?>
     </div>
 
     <?php include "includes/footer.php"; ?>
