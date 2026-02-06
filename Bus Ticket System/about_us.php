@@ -29,6 +29,7 @@ include "includes/config.php";
             text-align: center;
         }
         .member-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        
         .avatar-img {
             width: 150px;
             height: 150px;
@@ -36,8 +37,10 @@ include "includes/config.php";
             border-radius: 50% !important;
             border: 5px solid #fff;
         }
+        
         .member-name { color: #2c3e50; font-weight: 700; margin-top: 20px; }
         .section-title { color: white; text-shadow: 2px 2px 8px rgba(0,0,0,0.6); font-weight: 800; margin: 30px 0 50px 0; }
+        
         .info-card {
             background: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
@@ -81,6 +84,9 @@ include "includes/config.php";
             <div class="member-card info-card py-4 shadow-sm text-start ps-5">
                 <h5 class="fw-bold mb-3">Project Information</h5>
                 <div class="row">
+                    <div class="col-12 mb-3">
+                        <p class="mb-1 text-muted">Project Name: <br><strong>Bus Ticket Booking System</strong></p>
+                    </div>
                     <div class="col-sm-6">
                         <p class="mb-1 text-muted">Course: <br><strong>Internet and Web Publishing</strong></p>
                     </div>
