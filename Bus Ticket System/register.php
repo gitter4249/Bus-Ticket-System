@@ -32,6 +32,24 @@
             border-radius: 12px; font-weight: 600;
         }
     </style>
+    <script>
+        function validateForm(event) {
+            var password = document.getElementsByName("password")[0].value;
+            var confirmPassword = document.getElementsByName("confirm_password")[0].value;
+
+            if (password.length < 4) {
+                alert("Password must be at least 4 characters long.");
+                event.preventDefault(); 
+                return false;
+            }
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                event.preventDefault();
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 <body>
 
@@ -44,15 +62,22 @@
                     <h4 class="fw-bold text-success">Join Us</h4>
                 </div>
                 <div class="card-body p-4 pt-2">
-                    <form action="register_process.php" method="post">
+                    <form action="register_process.php" method="post" onsubmit="return validateForm(event)">
                         <div class="mb-3">
                             <label class="small fw-bold">Email</label>
                             <input type="email" class="form-control" name="email" placeholder="Enter email" required style="border-radius:10px; padding:12px;">
                         </div>
-                        <div class="mb-4">
+                        
+                        <div class="mb-3">
                             <label class="small fw-bold">Password</label>
-                            <input type="password" class="form-control" name="password" placeholder="Enter password" required style="border-radius:10px; padding:12px;">
+                            <input type="password" class="form-control" name="password" placeholder="Enter password (min 4 chars)" required minlength="4" style="border-radius:10px; padding:12px;">
                         </div>
+
+                        <div class="mb-4">
+                            <label class="small fw-bold">Confirm Password</label>
+                            <input type="password" class="form-control" name="confirm_password" placeholder="Re-enter password" required minlength="4" style="border-radius:10px; padding:12px;">
+                        </div>
+
                         <button type="submit" class="btn btn-success w-100">Create Account</button>
                     </form>
                     <div class="text-center mt-3">
