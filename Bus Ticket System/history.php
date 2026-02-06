@@ -8,9 +8,10 @@ if (!isset($_SESSION['user'])) {
 }
 
 $user_email = $_SESSION['user'];
-//take information bookings history from database
-$sql = "SELECT b.id, b.seat_no, b.p_name, b.p_email, b.p_phone, b.total_price, 
-               bs.bus_company, bs.departure, bs.destination, bs.depart_time, bs.price
+
+// is it bus status inactive, then show refunded
+$sql = "SELECT b.id as booking_id, b.seat_no, b.p_name, b.p_email, b.p_phone, b.total_price, 
+               bs.id as bus_id, bs.bus_company, bs.departure, bs.destination, bs.depart_time, bs.price, bs.status as bus_status
         FROM bookings b
         JOIN buses bs ON b.bus_id = bs.id
         WHERE b.user_email = ?
@@ -36,10 +37,18 @@ $result = $stmt->get_result();
         td { padding: 18px; border-bottom: 1px solid #f1f5f9; color: #334155; }
         
         .price-text { color: #4f46e5; font-weight: 800; font-size: 1.1rem; }
-        .status-badge { color: #15803d; background: #dcfce7; padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 12px; }
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+        .status-completed { color: #15803d; background: #dcfce7; }
+        .status-refunded { color: #b91c1c; background: #fee2e2; }
+        
         .seat-badge { background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #475569; }
         .passenger-info { font-size: 13px; color: #64748b; margin-top: 4px; display: block; }
         .company-name { color: #4f46e5; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; display: block; margin-bottom: 2px; }
+        
+        /*if cancel*/
+        .cancelled-row { background-color: #fafafa; }
+        .cancelled-row td { color: #94a3b8 !important; }
+        .cancelled-row .price-text { color: #94a3b8; text-decoration: line-through; }
     </style>
 </head>
 <body style="background: #f8fafc;">
@@ -63,14 +72,17 @@ $result = $stmt->get_result();
                 <tbody>
                     <?php if ($result->num_rows > 0): ?>
                         <?php while($row = $result->fetch_assoc()): 
+                            // if busstatus =0 then cancelled
+                            $is_cancelled = ($row['bus_status'] == 0);                           
                             $display_total = ($row['total_price'] > 0) ? $row['total_price'] : 0;
+                            // Recalculate total price if the original record is missing data
                             if($display_total == 0) {
                                 $seats_arr = explode(',', $row['seat_no']);
                                 $count = count(array_filter($seats_arr)); 
                                 $display_total = $row['price'] * $count;
                             }
                         ?>
-                        <tr>
+                        <tr class="<?= $is_cancelled ? 'cancelled-row' : '' ?>">
                             <td>
                                 <span class="company-name"><?= htmlspecialchars($row['bus_company'] ?: 'Bus Express') ?></span>
                                 
@@ -79,14 +91,25 @@ $result = $stmt->get_result();
                                 <span class="passenger-info">
                                     Passenger: <?= htmlspecialchars($row['p_name'] ?: 'N/A') ?> 
                                 </span>
-                                <span class="passenger-info">
-                                    Phone: <?= htmlspecialchars($row['p_phone'] ?: 'N/A') ?>
-                                </span>
+                                <?php if($is_cancelled): ?>
+                                    <small class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> Bus Service Unavailable</small>
+                                <?php endif; ?>
                             </td>
                             <td><?= htmlspecialchars($row['depart_time']) ?></td>
                             <td><span class="seat-badge"><?= htmlspecialchars($row['seat_no']) ?></span></td>
-                            <td class="price-text">RM <?= number_format($display_total, 2) ?></td>
-                            <td><span class="status-badge">Completed</span></td>
+                            <td class="price-text">
+                                RM <?= number_format($display_total, 2) ?>
+                                <?php if($is_cancelled): ?>
+                                    <div style="font-size: 10px; text-decoration: none; color: #ef4444;">Refunded to Wallet</div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if($is_cancelled): ?>
+                                    <span class="status-badge status-refunded">Refunded</span>
+                                <?php else: ?>
+                                    <span class="status-badge status-completed">Confirmed</span>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
@@ -97,11 +120,14 @@ $result = $stmt->get_result();
                 </tbody>
             </table>
         </div>
+        
+        <?php if ($result->num_rows > 0): ?>
+        <div style="margin-top: 20px; padding: 15px; background: #fffbeb; border-radius: 8px; border-left: 4px solid #f59e0b; font-size: 13px; color: #92400e;">
+            <strong>Note:</strong> If a bus service is deactivated by the operator (e.g., technical issues), your booking will be automatically cancelled and the amount will be refunded to your original payment method.
+        </div>
+        <?php endif; ?>
     </div>
 
     <?php include "includes/footer.php"; ?>
 </body>
 </html>
-
-
-
